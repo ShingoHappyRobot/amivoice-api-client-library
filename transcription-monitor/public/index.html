@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-time Transcription Monitor</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1><i class="fas fa-microphone"></i> Real-time Transcription Monitor</h1>
+            <div class="connection-status">
+                <span id="connectionIndicator" class="status-indicator disconnected"></span>
+                <span id="connectionText">Disconnected</span>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Left Panel - Configuration and Analytics -->
+            <div class="left-panel">
+                <div class="panel-tabs">
+                    <button class="tab-button active" data-tab="configuration">
+                        <i class="fas fa-cog"></i> Configuration
+                    </button>
+                    <button class="tab-button" data-tab="analytics">
+                        <i class="fas fa-chart-line"></i> Analytics
+                    </button>
+                    <button class="tab-button" data-tab="logs">
+                        <i class="fas fa-list"></i> Logs
+                    </button>
+                </div>
+
+                <!-- Configuration Tab -->
+                <div class="tab-content active" id="configuration">
+                    <div class="config-section">
+                        <h3>Connection Settings</h3>
+                        <div class="form-group">
+                            <label for="serverUrl">Server URL:</label>
+                            <input type="text" id="serverUrl" placeholder="wss://your-server.com" value="ws://localhost:3001">
+                        </div>
+                        <div class="form-group">
+                            <label for="apiKey">API Key:</label>
+                            <input type="password" id="apiKey" placeholder="Enter your API key">
+                        </div>
+                        <div class="form-group">
+                            <label for="language">Language:</label>
+                            <select id="language">
+                                <option value="en-US">English (US)</option>
+                                <option value="ja-JP">Japanese</option>
+                                <option value="es-ES">Spanish</option>
+                                <option value="fr-FR">French</option>
+                                <option value="de-DE">German</option>
+                            </select>
+                        </div>
+                        <button id="connectBtn" class="btn btn-primary">
+                            <i class="fas fa-plug"></i> Connect
+                        </button>
+                        <button id="disconnectBtn" class="btn btn-secondary" disabled>
+                            <i class="fas fa-times"></i> Disconnect
+                        </button>
+                    </div>
+
+                    <div class="config-section">
+                        <h3>Audio Settings</h3>
+                        <div class="form-group">
+                            <label for="sampleRate">Sample Rate:</label>
+                            <select id="sampleRate">
+                                <option value="8000">8 kHz</option>
+                                <option value="16000" selected>16 kHz</option>
+                                <option value="44100">44.1 kHz</option>
+                                <option value="48000">48 kHz</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="channels">Channels:</label>
+                            <select id="channels">
+                                <option value="1" selected>Mono</option>
+                                <option value="2">Stereo</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Analytics Tab -->
+                <div class="tab-content" id="analytics">
+                    <div class="analytics-section">
+                        <h3>Real-time Metrics</h3>
+                        <div class="metric-card">
+                            <div class="metric-header">
+                                <i class="fas fa-bullseye"></i>
+                                <span>Accuracy</span>
+                                <i class="fas fa-chevron-right"></i>
+                            </div>
+                            <div class="metric-value" id="accuracyValue">--</div>
+                            <div class="metric-trend" id="accuracyTrend">--</div>
+                        </div>
+                        
+                        <div class="metric-card">
+                            <div class="metric-header">
+                                <i class="fas fa-clock"></i>
+                                <span>Latency</span>
+                                <i class="fas fa-chevron-right"></i>
+                            </div>
+                            <div class="metric-value" id="latencyValue">--</div>
+                            <div class="metric-trend" id="latencyTrend">--</div>
+                        </div>
+                        
+                        <div class="metric-card">
+                            <div class="metric-header">
+                                <i class="fas fa-chart-bar"></i>
+                                <span>Confidence</span>
+                                <i class="fas fa-chevron-right"></i>
+                            </div>
+                            <div class="metric-value" id="confidenceValue">--</div>
+                            <div class="metric-trend" id="confidenceTrend">--</div>
+                        </div>
+                    </div>
+
+                    <div class="analytics-section">
+                        <h3>Performance Charts</h3>
+                        <canvas id="accuracyChart" width="300" height="150"></canvas>
+                        <canvas id="latencyChart" width="300" height="150"></canvas>
+                    </div>
+                </div>
+
+                <!-- Logs Tab -->
+                <div class="tab-content" id="logs">
+                    <div class="logs-section">
+                        <h3>System Logs</h3>
+                        <div class="log-controls">
+                            <button id="clearLogsBtn" class="btn btn-small">Clear Logs</button>
+                            <button id="exportLogsBtn" class="btn btn-small">Export</button>
+                        </div>
+                        <div class="log-container" id="logContainer">
+                            <div class="log-entry info">
+                                <span class="log-timestamp">[12:00:00]</span>
+                                <span class="log-level">INFO</span>
+                                <span class="log-message">System initialized</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel - Transcription Output -->
+            <div class="right-panel">
+                <div class="panel-header">
+                    <h3><i class="fas fa-file-alt"></i> Transcription</h3>
+                    <div class="panel-controls">
+                        <button id="clearTranscriptionBtn" class="btn btn-small">
+                            <i class="fas fa-trash"></i> Clear
+                        </button>
+                        <button id="exportTranscriptionBtn" class="btn btn-small">
+                            <i class="fas fa-download"></i> Export
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="transcription-container" id="transcriptionContainer">
+                    <div class="transcription-placeholder">
+                        <i class="fas fa-microphone-slash"></i>
+                        <p>No transcription yet. Connect and start recording to see results.</p>
+                    </div>
+                </div>
+
+                <!-- Audio Controls -->
+                <div class="audio-controls">
+                    <button id="recordBtn" class="btn btn-record" disabled>
+                        <i class="fas fa-microphone"></i> Start Recording
+                    </button>
+                    <button id="stopBtn" class="btn btn-stop" disabled>
+                        <i class="fas fa-stop"></i> Stop Recording
+                    </button>
+                    <div class="audio-visualizer">
+                        <canvas id="audioCanvas" width="400" height="60"></canvas>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="footer-content">
+                <span>Transcription Monitor v1.0</span>
+                <span id="statusInfo">Ready</span>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
